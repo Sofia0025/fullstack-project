@@ -1,15 +1,32 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
+
+const Main = () => {
+  const [darkMode, setDarkMode] = useState(false);
+  const theme = useMemo(() => createTheme({
+    palette: {
+      mode: darkMode ? 'dark' : 'light',
+    },
+  }), [darkMode]);
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <App darkMode={darkMode} onToggleDarkMode={() => setDarkMode(dm => !dm)} />
+    </ThemeProvider>
+  );
+};
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <App />
+    <Main />
   </React.StrictMode>
 );
 

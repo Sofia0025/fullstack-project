@@ -1,6 +1,8 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, Button, IconButton, Box, Badge } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, IconButton, Box, Badge, Switch } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCartStore } from '../store/cartStore';
 
@@ -14,7 +16,12 @@ function getUser() {
   }
 }
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  darkMode: boolean;
+  onToggleDarkMode: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ darkMode, onToggleDarkMode }) => {
   const { items } = useCartStore();
   const user = getUser();
   const navigate = useNavigate();
@@ -29,13 +36,16 @@ const Header: React.FC = () => {
     <AppBar position="static">
       <Toolbar>
         <Typography variant="h6" component={Link} to="/" sx={{ flexGrow: 1, color: 'inherit', textDecoration: 'none' }}>
-          Ecommerce
+          Sofi Ecommerce
         </Typography>
         <Button color="inherit" component={Link} to="/">Inicio</Button>
         <IconButton color="inherit" component={Link} to="/cart">
           <Badge badgeContent={items.length} color="secondary">
             <ShoppingCartIcon />
           </Badge>
+        </IconButton>
+        <IconButton color="inherit" onClick={onToggleDarkMode} sx={{ ml: 2 }}>
+          {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
         </IconButton>
         {user ? (
           <>

@@ -13,10 +13,15 @@ import Header from './components/Header';
 import PrivateRoute from './components/PrivateRoute';
 import { Box } from '@mui/material';
 
-const App: React.FC = () => {
+interface AppProps {
+  darkMode: boolean;
+  onToggleDarkMode: () => void;
+}
+
+const App: React.FC<AppProps> = ({ darkMode, onToggleDarkMode }) => {
   return (
     <Router>
-      <Header />
+      <Header darkMode={darkMode} onToggleDarkMode={onToggleDarkMode} />
       <Box minHeight="90vh">
         <Routes>
           <Route path="/" element={<Home />} />

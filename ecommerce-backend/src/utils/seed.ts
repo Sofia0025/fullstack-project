@@ -6,32 +6,53 @@ import bcrypt from 'bcryptjs';
 
 dotenv.config();
 
-const products = [
-  {
-    name: 'Remera Básica Blanca',
-    description: 'Remera de algodón 100% blanca, unisex.',
-    price: 5999,
-    stock: 100,
-    category: 'remeras',
-    imageUrl: 'https://dummyimage.com/400x400/fff/000&text=Remera+Blanca',
-  },
-  {
-    name: 'Jean Slim Azul',
-    description: 'Jean azul corte slim fit.',
-    price: 12999,
-    stock: 50,
-    category: 'pantalones',
-    imageUrl: 'https://dummyimage.com/400x400/87ceeb/000&text=Jean+Slim',
-  },
-  {
-    name: 'Campera Negra',
-    description: 'Campera de abrigo negra, impermeable.',
-    price: 24999,
-    stock: 30,
-    category: 'camperas',
-    imageUrl: 'https://dummyimage.com/400x400/000/fff&text=Campera+Negra',
-  },
+const categories = ['remeras', 'pantalones', 'camperas', 'zapatillas', 'accesorios'];
+
+const productNames = [
+  'Remera Básica Blanca', 'Remera Estampada', 'Remera Oversize', 'Remera Rayada',
+  'Jean Slim Azul', 'Jean Mom', 'Jean Roto', 'Jean Negro',
+  'Campera Negra', 'Campera de Cuero', 'Campera de Jean', 'Campera Rompevientos',
+  'Zapatillas Urbanas', 'Zapatillas Running', 'Zapatillas Skate', 'Zapatillas Blancas',
+  'Gorra Bordada', 'Gorra Plana', 'Bufanda Lana', 'Cinturón Cuero',
+  'Short Deportivo', 'Short de Baño', 'Pantalón Jogger', 'Pantalón Cargo',
+  'Camisa de Lino', 'Camisa a Cuadros', 'Camisa Manga Corta', 'Sweater Tejido',
+  'Chaleco Inflable', 'Chaleco de Jean', 'Medias Altas', 'Medias Invisibles',
+  'Mochila Urbana', 'Riñonera', 'Bolso de Mano', 'Guantes Invierno',
+  'Parka', 'Abrigo Largo', 'Poncho', 'Pijama',
+  'Top Deportivo', 'Leggings', 'Falda Plisada', 'Vestido Casual',
+  'Sandalias', 'Ojotas', 'Botines', 'Botas',
+  'Cartera', 'Porta Notebook', 'Lentes de Sol', 'Pulsera',
+  'Collar', 'Anillo', 'Aros', 'Reloj',
+  'Chomba', 'Polo', 'Chalina', 'Capa',
+  'Babucha', 'Pantalón Sastrero', 'Remera Polo', 'Sweatshirt',
+  'Sudadera', 'Pantalón de Vestir', 'Chaleco de Punto', 'Camiseta Interior',
+  'Camisón', 'Buzo con Capucha', 'Buzo Crop', 'Buzo Estampado',
+  'Remera Manga Larga', 'Remera Sin Mangas', 'Remera Deportiva', 'Remera Vintage',
+  'Pantalón Chino', 'Pantalón Slim', 'Pantalón Recto', 'Pantalón Oxford',
+  'Campera Puffer', 'Campera Liviana', 'Campera de Lluvia', 'Campera Bomber',
+  'Zapatillas Running Mujer', 'Zapatillas Running Hombre', 'Zapatillas Trekking', 'Zapatillas Slip On',
+  'Gorra Trucker', 'Gorra Snapback', 'Cinturón Trenzado', 'Cinturón Casual',
+  'Short de Jean', 'Short de Algodón', 'Short de Running', 'Short de Vestir',
+  'Camisa Denim', 'Camisa Formal', 'Camisa Slim', 'Sweater Cuello V',
+  'Sweater Cuello Redondo', 'Sweater Oversize', 'Sweater Crop', 'Sweater Rayado',
 ];
+
+function generateProducts(count: number) {
+  const generated = [];
+  for (let i = 1; i <= count; i++) {
+    const category = categories[i % categories.length];
+    const name = productNames[(i - 1) % productNames.length] + (i > productNames.length ? ` ${Math.ceil(i / productNames.length)}` : '');
+    generated.push({
+      name,
+      description: `Descripción de la prenda: ${name}`,
+      price: Math.floor(Math.random() * 20000) + 1000,
+      stock: Math.floor(Math.random() * 100) + 1,
+      category,
+      imageUrl: `https://dummyimage.com/400x400/${(Math.random()*0xFFFFFF<<0).toString(16).padStart(6,'0')}/fff&text=${encodeURIComponent(name)}`,
+    });
+  }
+  return generated;
+}
 
 async function seed() {
   try {
@@ -55,8 +76,9 @@ async function seed() {
 
     // Productos
     await Product.deleteMany({});
-    await Product.insertMany(products);
-    console.log('Productos dummy insertados');
+    const generatedProducts = generateProducts(153);
+    await Product.insertMany(generatedProducts);
+    console.log('153 productos generados e insertados');
 
     process.exit(0);
   } catch (err) {

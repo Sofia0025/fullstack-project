@@ -1,90 +1,62 @@
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 import User from '../models/User';
 import Product from '../models/Product';
 import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 
 dotenv.config();
 
-const categories = ['remeras', 'pantalones', 'camperas', 'zapatillas', 'accesorios'];
+// Leer y parsear el archivo mocks.json
+const mocksPath = path.join(__dirname, 'mocks.json');
+const mocksData = JSON.parse(fs.readFileSync(mocksPath, 'utf-8'));
 
-const productNames = [
-  'Remera Básica Blanca', 'Remera Estampada', 'Remera Oversize', 'Remera Rayada',
-  'Jean Slim Azul', 'Jean Mom', 'Jean Roto', 'Jean Negro',
-  'Campera Negra', 'Campera de Cuero', 'Campera de Jean', 'Campera Rompevientos',
-  'Zapatillas Urbanas', 'Zapatillas Running', 'Zapatillas Skate', 'Zapatillas Blancas',
-  'Gorra Bordada', 'Gorra Plana', 'Bufanda Lana', 'Cinturón Cuero',
-  'Short Deportivo', 'Short de Baño', 'Pantalón Jogger', 'Pantalón Cargo',
-  'Camisa de Lino', 'Camisa a Cuadros', 'Camisa Manga Corta', 'Sweater Tejido',
-  'Chaleco Inflable', 'Chaleco de Jean', 'Medias Altas', 'Medias Invisibles',
-  'Mochila Urbana', 'Riñonera', 'Bolso de Mano', 'Guantes Invierno',
-  'Parka', 'Abrigo Largo', 'Poncho', 'Pijama',
-  'Top Deportivo', 'Leggings', 'Falda Plisada', 'Vestido Casual',
-  'Sandalias', 'Ojotas', 'Botines', 'Botas',
-  'Cartera', 'Porta Notebook', 'Lentes de Sol', 'Pulsera',
-  'Collar', 'Anillo', 'Aros', 'Reloj',
-  'Chomba', 'Polo', 'Chalina', 'Capa',
-  'Babucha', 'Pantalón Sastrero', 'Remera Polo', 'Sweatshirt',
-  'Sudadera', 'Pantalón de Vestir', 'Chaleco de Punto', 'Camiseta Interior',
-  'Camisón', 'Buzo con Capucha', 'Buzo Crop', 'Buzo Estampado',
-  'Remera Manga Larga', 'Remera Sin Mangas', 'Remera Deportiva', 'Remera Vintage',
-  'Pantalón Chino', 'Pantalón Slim', 'Pantalón Recto', 'Pantalón Oxford',
-  'Campera Puffer', 'Campera Liviana', 'Campera de Lluvia', 'Campera Bomber',
-  'Zapatillas Running Mujer', 'Zapatillas Running Hombre', 'Zapatillas Trekking', 'Zapatillas Slip On',
-  'Gorra Trucker', 'Gorra Snapback', 'Cinturón Trenzado', 'Cinturón Casual',
-  'Short de Jean', 'Short de Algodón', 'Short de Running', 'Short de Vestir',
-  'Camisa Denim', 'Camisa Formal', 'Camisa Slim', 'Sweater Cuello V',
-  'Sweater Cuello Redondo', 'Sweater Oversize', 'Sweater Crop', 'Sweater Rayado',
-];
-
-function generateProducts(count: number) {
-  const generated = [];
-  for (let i = 1; i <= count; i++) {
-    const category = categories[i % categories.length];
-    const name = productNames[(i - 1) % productNames.length] + (i > productNames.length ? ` ${Math.ceil(i / productNames.length)}` : '');
-    generated.push({
-      name,
-      description: `Descripción de la prenda: ${name}`,
-      price: Math.floor(Math.random() * 20000) + 1000,
-      stock: Math.floor(Math.random() * 100) + 1,
-      category,
-      imageUrl: `https://dummyimage.com/400x400/${(Math.random()*0xFFFFFF<<0).toString(16).padStart(6,'0')}/fff&text=${encodeURIComponent(name)}`,
-    });
+// Extraer todos los productos reales del JSON
+const realProducts = mocksData.data.productSearch.products.map((p: any) => {
+  // Buscar la primera imagen disponible
+  let imageUrl = '';
+  if (p.items && p.items.length > 0 && p.items[0].images && p.items[0].images.length > 0) {
+    imageUrl = p.items[0].images[0].imageUrl;
   }
-  return generated;
-}
+  return {
+    name: p.productName,
+    description: p.description,
+    price: p.priceRange?.sellingPrice?.lowPrice || 0,
+    stock: Math.floor(Math.random() * 50) + 10,
+    category: (p.categories && p.categories.length > 0) ? p.categories[0].replace(/\//g, '').toLowerCase() : 'otros',
+    imageUrl,
+    brand: p.brand || 'Sin marca'
+  };
+});
 
-async function seed() {
+const seed = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI || '', {
-      // @ts-ignore
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log('MongoDB conectado');
+    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/ecommerce');
+    console.log('Conectado a MongoDB');
 
-    // Admin
-    const adminEmail = 'admin@ecommerce.com';
-    const adminExists = await User.findOne({ email: adminEmail });
-    if (!adminExists) {
-      const hashed = await bcrypt.hash('admin123', 10);
-      await User.create({ email: adminEmail, password: hashed, name: 'Admin', role: 'admin' });
-      console.log('Usuario admin creado');
-    } else {
-      console.log('El usuario admin ya existe');
-    }
-
-    // Productos
+    await User.deleteMany({});
     await Product.deleteMany({});
-    const generatedProducts = generateProducts(153);
-    await Product.insertMany(generatedProducts);
-    console.log('153 productos generados e insertados');
 
+    const hashedPassword = await bcrypt.hash('admin123', 10);
+    const adminUser = new User({
+      name: 'Admin',
+      email: 'admin@example.com',
+      password: hashedPassword,
+      role: 'admin'
+    });
+    await adminUser.save();
+    console.log('Usuario admin creado');
+
+    await Product.insertMany(realProducts);
+    console.log(`${realProducts.length} productos reales insertados desde mocks.json`);
+
+    console.log('Seed completado exitosamente con datos reales de mocks.json');
     process.exit(0);
-  } catch (err) {
-    console.error('Error en el seed:', err);
+  } catch (error) {
+    console.error('Error en seed:', error);
     process.exit(1);
   }
-}
+};
 
 seed(); 

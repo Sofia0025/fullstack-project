@@ -1,0 +1,12 @@
+{
+  "products": [
+    {
+      "name": "Sweater Pati",
+      "price": 52990,
+      "imageUrl": "https://dummyimage.com/400x400/000/fff&text=Sweater+Pati",
+      "description": "Sweater tejido en hilado multicolor generando motivo de rayas degradé. Cuello, puños, cintura en punto rib.",
+      "brand": "Cuesta Blanca",
+      "category": "sweaters"
+    }
+  ]
+} 

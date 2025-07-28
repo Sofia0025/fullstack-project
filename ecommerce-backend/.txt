@@ -1,0 +1,3 @@
+PORT=5000
+MONGO_URI=mongodb+srv://sofi:MVp8fij8rG6hnUN6@users.f1vts.mongodb.net/ecommerce?retryWrites=true&w=majority
+JWT_SECRET=supersecretkey

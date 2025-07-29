@@ -1,6 +1,6 @@
-# 🚀 Fullstack Project
+# 🚀 Fullstack E-commerce Project
 
-Un proyecto fullstack completo desarrollado con Node.js, Express, MongoDB, React y Material-UI. Incluye autenticación JWT, gestión de usuarios, documentación API y diseño responsive.
+Un proyecto fullstack completo desarrollado con Node.js, Express, MongoDB, React y Material-UI. Incluye autenticación JWT, gestión de productos, carrito de compras, documentación API y diseño responsive.
 
 ## 📋 Características del Proyecto
 
@@ -9,12 +9,13 @@ Un proyecto fullstack completo desarrollado con Node.js, Express, MongoDB, React
 - ✅ Base de datos MongoDB con Mongoose
 - ✅ Autenticación JWT con bcrypt
 - ✅ Validaciones con express-validator
-- ✅ Documentación Swagger (solo métodos GET)
-- ✅ Operaciones CRUD completas
+- ✅ Documentación Swagger completa
+- ✅ Operaciones CRUD completas para productos, usuarios, carrito y órdenes
 - ✅ Paginación y filtros
 - ✅ Middleware de autenticación
 - ✅ Control de errores
 - ✅ Variables de entorno
+- ✅ Seed automático con productos reales
 
 ### Frontend (React + Material-UI)
 - ✅ React con hooks modernos
@@ -23,11 +24,14 @@ Un proyecto fullstack completo desarrollado con Node.js, Express, MongoDB, React
 - ✅ Context API para estado global
 - ✅ Autenticación JWT
 - ✅ Componentes reutilizables
-- ✅ Hooks personalizados (useFetch)
+- ✅ Hooks personalizados (useAuth, useProducts)
 - ✅ Validación de formularios
 - ✅ Tabla de datos con filtros y paginación
 - ✅ Diseño responsive (desktop y mobile)
 - ✅ Feedback visual (loaders, errores)
+- ✅ Modo oscuro/claro
+- ✅ Skeleton loaders
+- ✅ Carrito de compras funcional
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -40,6 +44,7 @@ Un proyecto fullstack completo desarrollado con Node.js, Express, MongoDB, React
 - **bcryptjs** - Encriptación de contraseñas
 - **express-validator** - Validaciones
 - **Swagger** - Documentación API
+- **TypeScript** - Tipado estático
 
 ### Frontend
 - **React 18** - Biblioteca de UI
@@ -47,38 +52,70 @@ Un proyecto fullstack completo desarrollado con Node.js, Express, MongoDB, React
 - **React Router** - Enrutamiento
 - **Axios** - Cliente HTTP
 - **Context API** - Estado global
+- **TypeScript** - Tipado estático
 
 ## 📁 Estructura del Proyecto
 
 ```
 fullstack-project/
-├── backend/
-│   ├── config/
-│   │   └── swagger.js          # Configuración Swagger
-│   ├── controllers/
-│   │   ├── authController.js   # Controlador de autenticación
-│   │   └── userController.js   # Controlador de usuarios
-│   ├── middleware/
-│   │   ├── auth.js            # Middleware de autenticación
-│   │   └── validation.js      # Middleware de validación
-│   ├── models/
-│   │   └── User.js            # Modelo de Usuario
-│   ├── routes/
-│   │   ├── auth.js            # Rutas de autenticación
-│   │   └── users.js           # Rutas de usuarios
-│   ├── server.js              # Archivo principal
+├── ecommerce-backend/
+│   ├── src/
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   │   ├── authController.ts
+│   │   │   ├── cartController.ts
+│   │   │   ├── orderController.ts
+│   │   │   └── productController.ts
+│   │   ├── middleware/
+│   │   │   └── auth.ts
+│   │   ├── models/
+│   │   │   ├── Cart.ts
+│   │   │   ├── Order.ts
+│   │   │   ├── Product.ts
+│   │   │   └── User.ts
+│   │   ├── routes/
+│   │   │   ├── auth.ts
+│   │   │   ├── cart.ts
+│   │   │   ├── orders.ts
+│   │   │   ├── products.ts
+│   │   │   └── users.ts
+│   │   ├── services/
+│   │   ├── utils/
+│   │   │   ├── debugCart.ts
+│   │   │   ├── mocks.json
+│   │   │   └── seed.ts
+│   │   └── index.ts
 │   ├── package.json
-│   └── README.md
-├── frontend/
+│   └── tsconfig.json
+├── ecommerce-frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   ├── context/
+│   │   │   ├── Header.tsx
+│   │   │   └── PrivateRoute.tsx
 │   │   ├── hooks/
+│   │   │   ├── useAuth.ts
+│   │   │   └── useProducts.ts
 │   │   ├── pages/
-│   │   ├── services/
-│   │   └── App.js
+│   │   │   ├── AdminOrders.tsx
+│   │   │   ├── AdminProducts.tsx
+│   │   │   ├── AdminUsers.tsx
+│   │   │   ├── Cart.tsx
+│   │   │   ├── Checkout.tsx
+│   │   │   ├── Home.tsx
+│   │   │   ├── Login.tsx
+│   │   │   ├── Profile.tsx
+│   │   │   └── Register.tsx
+│   │   ├── store/
+│   │   │   └── cartStore.ts
+│   │   ├── utils/
+│   │   │   └── api.ts
+│   │   ├── App.tsx
+│   │   └── index.tsx
+│   ├── public/
 │   ├── package.json
-│   └── README.md
+│   └── tsconfig.json
+├── start.sh
+├── QUICK_START.md
 └── README.md
 ```
 
@@ -86,7 +123,7 @@ fullstack-project/
 
 ### Prerrequisitos
 - Node.js (v18 o superior)
-- MongoDB (local o MongoDB Atlas)
+- MongoDB Atlas (configurado)
 - npm o yarn
 
 ### 1. Clonar el proyecto
@@ -97,32 +134,28 @@ cd fullstack-project
 
 ### 2. Configurar Backend
 ```bash
-cd backend
+cd ecommerce-backend
 npm install
-cp env.example .env
 ```
 
-Editar `.env`:
+Crear archivo `.env`:
 ```env
 PORT=5000
-MONGODB_URI=mongodb://localhost:27017/fullstack_project
-JWT_SECRET=your_jwt_secret_key_here_change_in_production
-NODE_ENV=development
+MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/ecommerce
+JWT_SECRET=your_jwt_secret_key_here
 ```
 
 ### 3. Configurar Frontend
 ```bash
-cd ../frontend
+cd ../ecommerce-frontend
 npm install
 ```
 
-Opcional: Crear `.env`:
-```env
-REACT_APP_API_URL=http://localhost:5000/api
+### 4. Ejecutar el Seed
+```bash
+cd ../ecommerce-backend
+npm run seed
 ```
-
-### 4. Iniciar MongoDB
-Asegúrate de que MongoDB esté corriendo localmente o configura MongoDB Atlas.
 
 ## 🏃‍♂️ Ejecución
 
@@ -130,30 +163,21 @@ Asegúrate de que MongoDB esté corriendo localmente o configura MongoDB Atlas.
 
 #### Backend
 ```bash
-cd backend
+cd ecommerce-backend
 npm run dev
 ```
 El servidor estará disponible en `http://localhost:5000`
 
 #### Frontend
 ```bash
-cd frontend
+cd ecommerce-frontend
 npm start
 ```
 La aplicación estará disponible en `http://localhost:3000`
 
-### Producción
-
-#### Backend
+### Script de Inicio Rápido
 ```bash
-cd backend
-npm start
-```
-
-#### Frontend
-```bash
-cd frontend
-npm run build
+./start.sh
 ```
 
 ## 📚 API Endpoints
@@ -163,16 +187,32 @@ npm run build
 - `POST /api/auth/login` - Iniciar sesión
 - `GET /api/auth/profile` - Obtener perfil (requiere autenticación)
 
+### Productos
+- `GET /api/products` - Listar productos (con paginación y filtros)
+- `GET /api/products/:id` - Obtener producto por ID
+- `POST /api/products` - Crear producto (requiere autenticación admin)
+- `PUT /api/products/:id` - Actualizar producto (requiere autenticación admin)
+- `DELETE /api/products/:id` - Eliminar producto (requiere autenticación admin)
+
+### Carrito
+- `GET /api/cart` - Obtener carrito del usuario
+- `POST /api/cart/add` - Agregar producto al carrito
+- `PUT /api/cart/update` - Actualizar cantidad en carrito
+- `DELETE /api/cart/remove/:productId` - Remover producto del carrito
+
+### Órdenes
+- `GET /api/orders` - Listar órdenes del usuario
+- `POST /api/orders` - Crear nueva orden
+- `GET /api/orders/:id` - Obtener orden por ID
+
 ### Usuarios
-- `GET /api/users` - Listar usuarios (con paginación y filtros)
+- `GET /api/users` - Listar usuarios (admin)
 - `GET /api/users/:id` - Obtener usuario por ID
-- `POST /api/users` - Crear usuario (requiere autenticación)
-- `PUT /api/users/:id` - Actualizar usuario completo (requiere autenticación)
-- `PATCH /api/users/:id` - Actualizar usuario parcial (requiere autenticación)
-- `DELETE /api/users/:id` - Eliminar usuario (requiere autenticación)
+- `PUT /api/users/:id` - Actualizar usuario
+- `DELETE /api/users/:id` - Eliminar usuario (admin)
 
 ### Documentación
-- `GET /public-api` - Documentación Swagger (solo métodos GET)
+- `GET /api-docs` - Documentación Swagger completa
 
 ## 🎯 Funcionalidades Principales
 
@@ -182,19 +222,34 @@ npm run build
 - Tokens JWT para autenticación
 - Protección de rutas
 - Encriptación de contraseñas con bcrypt
+- Roles de usuario (admin, user)
 
-### Gestión de Usuarios
-- CRUD completo de usuarios
+### Gestión de Productos
+- CRUD completo de productos
 - Paginación y filtros avanzados
-- Búsqueda por nombre y email
-- Filtros por rol y estado
-- Validación de datos
+- Búsqueda por nombre y categoría
+- Imágenes reales de productos
+- Stock y precios dinámicos
+
+### Carrito de Compras
+- Agregar/remover productos
+- Actualizar cantidades
+- Persistencia en base de datos
+- Cálculo automático de totales
+
+### Gestión de Órdenes
+- Crear órdenes desde el carrito
+- Historial de compras
+- Estados de orden
+- Información de envío
 
 ### Interfaz de Usuario
 - Diseño responsive para todos los dispositivos
 - Navegación intuitiva
 - Feedback visual en tiempo real
 - Formularios con validación
+- Modo oscuro/claro
+- Skeleton loaders
 - Tabla de datos interactiva
 
 ### Documentación
@@ -210,33 +265,28 @@ npm run build
 #### Backend (.env)
 ```env
 PORT=5000
-MONGODB_URI=mongodb://localhost:27017/fullstack_project
-JWT_SECRET=your_jwt_secret_key_here_change_in_production
+MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/ecommerce
+JWT_SECRET=your_jwt_secret_key_here
 NODE_ENV=development
 ```
 
-#### Frontend (.env)
-```env
-REACT_APP_API_URL=http://localhost:5000/api
-```
-
 ### Base de Datos
-El proyecto usa MongoDB. Puedes:
-- Usar MongoDB local
-- Usar MongoDB Atlas (nube)
-- Cambiar a MySQL/PostgreSQL modificando los modelos
+El proyecto usa MongoDB Atlas. Configuración:
+- Base de datos: `ecommerce`
+- Colecciones: `users`, `products`, `carts`, `orders`
+- Seed automático con productos reales
 
 ## 🧪 Pruebas
 
 ### Backend
 ```bash
-cd backend
+cd ecommerce-backend
 npm test
 ```
 
 ### Frontend
 ```bash
-cd frontend
+cd ecommerce-frontend
 npm test
 ```
 
@@ -244,13 +294,13 @@ npm test
 
 ### Backend (Heroku, Railway, etc.)
 ```bash
-cd backend
+cd ecommerce-backend
 npm run build
 ```
 
 ### Frontend (Netlify, Vercel, etc.)
 ```bash
-cd frontend
+cd ecommerce-frontend
 npm run build
 ```
 
@@ -268,11 +318,11 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 
 ## 👨‍💻 Autor
 
-Desarrollado como proyecto final de backend developer.
+Desarrollado como proyecto fullstack e-commerce.
 
 ## 🙏 Agradecimientos
 
 - Material-UI por los componentes
 - Express.js por el framework
-- MongoDB por la base de datos
-- React por la biblioteca de UI # fullstack-project
+- MongoDB Atlas por la base de datos
+- React por la biblioteca de UI
